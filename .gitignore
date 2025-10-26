@@ -1,0 +1,140 @@
+# =========================
+# 🌐 GLOBAL
+# =========================
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.log
+*.tmp
+*.swp
+*.bak
+*.orig
+
+# Node / Java artifacts
+node_modules/
+dist/
+target/
+build/
+out/
+
+# Environment / Secrets
+.env
+.env.*
+*.local
+application-*.yml
+application-*.properties
+*.key
+*.pem
+*.crt
+*.p12
+*.keystore
+*.jks
+
+# =========================
+# 🧩 FRONTEND (Angular)
+# =========================
+# Angular build
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/cache/
+/frontend/.angular/
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Angular environment files
+/frontend/src/environments/environment*.ts
+
+# =========================
+# ☕ BACKEND (Spring Boot)
+# =========================
+# Maven / Gradle
+/backend/target/
+/backend/build/
+/backend/.mvn/
+/backend/mvnw*
+/backend/.gradle/
+/backend/gradle/
+/backend/logs/
+/backend/hs_err_pid*.log
+
+# IntelliJ & Eclipse
+/backend/.classpath
+/backend/.project
+/backend/.settings/
+.backend/.idea/
+.backend/.factorypath
+
+# Local config
+/backend/src/main/resources/application-*.yml
+/backend/src/main/resources/application-*.properties
+
+# =========================
+# 🐳 DOCKER / JENKINS / CI
+# =========================
+docker-compose.override.yml
+docker-compose.local.yml
+Dockerfile.*
+/jenkins/
+*.tar
+*.gz
+
+# =========================
+# 🧠 AI / PYTHON SERVICE (if any)
+# =========================
+/ai-service/__pycache__/
+/ai-service/.venv/
+/ai-service/venv/
+/ai-service/env/
+/ai-service/.pytest_cache/
+/ai-service/.mypy_cache/
+/ai-service/.ipynb_checkpoints/
+
+# =========================
+# 📦 DATABASE / STORAGE
+# =========================
+/data/
+/db/
+/volumes/
+/uploads/
+/storage/
+/*.db
+*.sqlite
+*.mv.db
+*.trace.db
+
+# =========================
+# 🧪 TESTS / REPORTS
+# =========================
+coverage/
+test-output/
+reports/
+*.coverage
+*.lcov
+*.hprof
+jacoco.exec
+
+# =========================
+# 📸 MISC
+# =========================
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.bak
+*.tmp
+*.old
+
+# =========================
+# 🔒 SECURITY
+# =========================
+/secrets/
+/certs/
+/private/
+/config/local/
