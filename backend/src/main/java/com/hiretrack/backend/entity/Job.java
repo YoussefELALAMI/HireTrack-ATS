@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.hiretrack.backend.enums.EmploymentType;
+import com.hiretrack.backend.enums.JobStatus;
+
 @Entity
 @Table(name = "jobs")
 public class Job {
@@ -33,8 +36,7 @@ public class Job {
     private String salaryRange;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private Status status;
+    private JobStatus status;
 
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
@@ -46,12 +48,5 @@ public class Job {
     @OneToMany(mappedBy = "job")
     private List<Application> applications;
 
-    public enum EmploymentType {
-        FULL_TIME, PART_TIME, INTERNSHIP, CONTRACT
-    }
-
-    public enum Status {
-        OPEN, CLOSED, DRAFT
-    }
 }
 

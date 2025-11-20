@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.hiretrack.backend.enums.ApplicationStatus;
+
 @Entity
 @Table(name = "applications")
 public class Application {
@@ -22,7 +24,6 @@ public class Application {
     private Candidate candidate;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
     private ApplicationStatus status;
 
     @Column(name = "applied_at")
@@ -36,9 +37,5 @@ public class Application {
 
     @OneToMany(mappedBy = "application")
     private List<Interview> interviews;
-
-    public enum ApplicationStatus {
-        APPLIED, IN_REVIEW, INTERVIEWING, REJECTED, HIRED
-    }
 }
 

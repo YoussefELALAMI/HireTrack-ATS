@@ -3,6 +3,7 @@ package com.hiretrack.backend.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.hiretrack.backend.enums.ExperienceLevel;
 
 @Entity
 @Table(name = "candidates")
@@ -43,8 +44,4 @@ public class Candidate {
 
     @OneToMany(mappedBy = "candidate")
     private List<Application> applications;
-
-    public enum ExperienceLevel {
-        JUNIOR, MID, SENIOR // corrected the typo
-    }
 }

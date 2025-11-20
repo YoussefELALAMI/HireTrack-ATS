@@ -3,6 +3,10 @@ package com.hiretrack.backend.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.hiretrack.backend.enums.InterviewType;
+import com.hiretrack.backend.enums.Outcome;
+
+
 @Entity
 @Table(name = "interviews")
 public class Interview {
@@ -33,14 +37,5 @@ public class Interview {
     private Integer rating;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
     private Outcome outcome;
-
-    public enum InterviewType {
-        TECHNICAL, HR, FINAL
-    }
-
-    public enum Outcome {
-        PASSED, FAILED, PENDING
-    }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.hiretrack.backend.enums.Role;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -26,7 +28,6 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
     private Role role;
 
     @Column(name = "company_name", length = 150)
@@ -40,8 +41,4 @@ public class User {
 
     @OneToMany(mappedBy = "createdBy")
     private List<Job> jobs;
-
-    public enum Role {
-        ADMIN, RECRUITER, HIRING_MANAGER, INTERVIEWER
-    }
 }
