@@ -17,11 +17,13 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-
     @Getter
+    @Setter
     @Column(name = "first_name", length = 100)
     private String firstName;
 
+    @Getter
+    @Setter
     @Column(name = "last_name", length = 100)
     private String lastName;
 
@@ -38,14 +40,21 @@ public class User {
     @Setter
     @Getter
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Role role;
 
+    @Getter
+    @Setter
     @Column(name = "company_name", length = 150)
     private String companyName;
 
+    @Getter
+    @Setter
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
+    @Getter
+    @Setter
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
