@@ -3,6 +3,8 @@ package com.hiretrack.backend.controller;
 import com.hiretrack.backend.dto.auth.AuthResponse;
 import com.hiretrack.backend.dto.auth.LoginRequest;
 import com.hiretrack.backend.dto.auth.RegisterRequest;
+import com.hiretrack.backend.entity.User;
+import com.hiretrack.backend.enums.Role;
 import com.hiretrack.backend.service.auth.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,13 +36,18 @@ class AuthControllerTest {
     private AuthResponse authResponse;
     private String jwtToken;
 
-    @BeforeEach
-    void setUp() {
-        registerRequest = new RegisterRequest("test@example.com", "password123");
-        loginRequest = new LoginRequest("test@example.com", "password123");
-        jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token";
-        authResponse = new AuthResponse(jwtToken, "Bearer");
-    }
+ @BeforeEach
+ void setUp() {
+     registerRequest = new RegisterRequest("test@example.com", "password123", "John", "Doe", "RECRUITER", "Test Company", "+1234567890");
+     loginRequest = new LoginRequest("test@example.com", "password123");
+     jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token";
+     User user = new User();
+     user.setEmail("test@example.com");
+     user.setFirstName("John");
+     user.setLastName("Doe");
+     user.setRole(Role.valueOf("RECRUITER"));
+     authResponse = new AuthResponse(jwtToken, "Bearer", user);
+ }
 
     @Test
     @DisplayName("Should register user successfully and return 200 OK")

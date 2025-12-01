@@ -1,4 +1,6 @@
 package com.hiretrack.backend.dto.auth;
 
-public record AuthResponse(String accessToken, String tokenType) {
+import com.hiretrack.backend.entity.User;
+
+public record AuthResponse(String accessToken, String tokenType, User user) {
 }
