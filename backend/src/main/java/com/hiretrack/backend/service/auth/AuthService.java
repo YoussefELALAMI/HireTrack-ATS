@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -43,13 +45,29 @@ public class AuthService {
      * @param request represents the data sent by the client when registering a new user.
      */
     public void register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.username())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new UsernameNotFoundException("Email already in use");
         }
+        
+        // Convert role string to Role enum, or use default role if invalid
+        Role userRole;
+        try {
+            userRole = Role.valueOf(request.role().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            // If role is invalid, use the default role from configuration
+            userRole = this.role;
+        }
+        
         User user = new User();
-        user.setEmail(request.username());
+        user.setEmail(request.email());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setRole(this.role);
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setRole(userRole);
+        user.setCompanyName(request.companyName());
+        user.setPhoneNumber(request.phoneNumber());
+        user.setCreatedAt(LocalDateTime.now());
+        
         userRepository.save(user); // persist entity to the database.
     }
 
@@ -71,21 +89,27 @@ public class AuthService {
         // UsernamePasswordAuthenticationToken is the standard implementation
         // used by Spring Security for username/password authentication.
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(request.username(), request.password());
+                new UsernamePasswordAuthenticationToken(request.email(), request.password());
 
         // Perform authentication. This will consult the configured AuthenticationProvider(s).
         // If authentication fails an AuthenticationException will be thrown.
         Authentication authentication = authenticationManager.authenticate(authToken);
 
         // After successful authentication, retrieve the authenticated principal.
-        // The principal is expected to implement UserDetails (provided by your UserDetailsService).
+        // Our JpaUserDetailsService returns a Spring Security UserDetails implementation,
+        // not the domain User entity, so we must look up the User entity separately.
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        // Look up the corresponding User entity by email (username in UserDetails).
+        String email = userDetails.getUsername();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         // Generate a JWT for the authenticated user. The JwtTokenProvider is responsible
         // for creating a signed token that encodes the user's identity and any claims.
         String token = jwtTokenProvider.generateToken(userDetails);
 
         // Return the token with the standard Bearer scheme used in Authorization headers.
-        return new AuthResponse(token, "Bearer");
+        return new AuthResponse(token, "Bearer", user);
     }
 }

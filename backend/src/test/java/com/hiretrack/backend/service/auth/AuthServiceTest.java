@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -69,7 +71,15 @@ class AuthServiceTest {
                 defaultRole
         );
 
-        registerRequest = new RegisterRequest("test@example.com", "password123");
+        registerRequest = new RegisterRequest(
+                "test@example.com",
+                "password123",
+                "John",
+                "Doe",
+                "RECRUITER",
+                "Test Company",
+                "+1234567890"
+        );
         loginRequest = new LoginRequest("test@example.com", "password123");
         encodedPassword = "$2a$10$encodedPasswordHash";
         jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.token";
@@ -78,6 +88,10 @@ class AuthServiceTest {
         savedUser.setEmail("test@example.com");
         savedUser.setPasswordHash(encodedPassword);
         savedUser.setRole(Role.RECRUITER);
+        savedUser.setFirstName("John");
+        savedUser.setLastName("Doe");
+        savedUser.setCompanyName("Test Company");
+        savedUser.setPhoneNumber("+1234567890");
 
         userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username("test@example.com")
@@ -90,10 +104,10 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should register a new user successfully")
+    @DisplayName("Should register a new user successfully with all fields")
     void testRegister_Success() {
         // Given
-        when(userRepository.existsByEmail(registerRequest.username())).thenReturn(false);
+        when(userRepository.existsByEmail(registerRequest.email())).thenReturn(false);
         when(passwordEncoder.encode(registerRequest.password())).thenReturn(encodedPassword);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -102,32 +116,38 @@ class AuthServiceTest {
 
         // Then
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository, times(1)).existsByEmail(registerRequest.username());
+        verify(userRepository, times(1)).existsByEmail(registerRequest.email());
         verify(passwordEncoder, times(1)).encode(registerRequest.password());
         verify(userRepository, times(1)).save(userCaptor.capture());
 
         User capturedUser = userCaptor.getValue();
-        assertEquals(registerRequest.username(), capturedUser.getEmail());
+        assertEquals(registerRequest.email(), capturedUser.getEmail());
         assertEquals(encodedPassword, capturedUser.getPasswordHash());
+        assertEquals(registerRequest.firstName(), capturedUser.getFirstName());
+        assertEquals(registerRequest.lastName(), capturedUser.getLastName());
+        assertEquals(Role.RECRUITER, capturedUser.getRole());
+        assertEquals(registerRequest.companyName(), capturedUser.getCompanyName());
+        assertEquals(registerRequest.phoneNumber(), capturedUser.getPhoneNumber());
+        assertNotNull(capturedUser.getCreatedAt());
     }
 
     @Test
     @DisplayName("Should throw exception when email already exists")
     void testRegister_EmailAlreadyExists() {
         // Given
-        when(userRepository.existsByEmail(registerRequest.username())).thenReturn(true);
+        when(userRepository.existsByEmail(registerRequest.email())).thenReturn(true);
 
         // When & Then
         assertThrows(org.springframework.security.core.userdetails.UsernameNotFoundException.class, () -> {
             authService.register(registerRequest);
         });
 
-        verify(userRepository, times(1)).existsByEmail(registerRequest.username());
+        verify(userRepository, times(1)).existsByEmail(registerRequest.email());
         verify(userRepository, never()).save(any(User.class));
         verify(passwordEncoder, never()).encode(anyString());
     }
 
-    @Test
+   @Test
     @DisplayName("Should login successfully and return AuthResponse with token")
     void testLogin_Success() {
         // Given
@@ -135,6 +155,7 @@ class AuthServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
         when(jwtTokenProvider.generateToken(userDetails)).thenReturn(jwtToken);
+        when(userRepository.findByEmail(loginRequest.email())).thenReturn(java.util.Optional.of(savedUser));
 
         // When
         AuthResponse response = authService.login(loginRequest);
@@ -149,7 +170,7 @@ class AuthServiceTest {
         verify(authenticationManager, times(1)).authenticate(tokenCaptor.capture());
 
         UsernamePasswordAuthenticationToken capturedToken = tokenCaptor.getValue();
-        assertEquals(loginRequest.username(), capturedToken.getPrincipal());
+        assertEquals(loginRequest.email(), capturedToken.getPrincipal());
         assertEquals(loginRequest.password(), capturedToken.getCredentials());
 
         verify(jwtTokenProvider, times(1)).generateToken(userDetails);
@@ -195,9 +216,17 @@ class AuthServiceTest {
         // Given
         String plainPassword = "plainPassword123";
         String expectedEncoded = "$2a$10$encodedHash";
-        RegisterRequest request = new RegisterRequest("newuser@example.com", plainPassword);
+        RegisterRequest request = new RegisterRequest(
+                "newuser@example.com",
+                plainPassword,
+                "Jane",
+                "Smith",
+                "ADMIN",
+                null,
+                null
+        );
 
-        when(userRepository.existsByEmail(request.username())).thenReturn(false);
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(plainPassword)).thenReturn(expectedEncoded);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -209,5 +238,118 @@ class AuthServiceTest {
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
         assertEquals(expectedEncoded, userCaptor.getValue().getPasswordHash());
+    }
+
+    @Test
+    @DisplayName("Should register user with valid role from request")
+    void testRegister_WithValidRole() {
+        // Given
+        RegisterRequest request = new RegisterRequest(
+                "admin@example.com",
+                "password123",
+                "Admin",
+                "User",
+                "ADMIN",
+                "Admin Corp",
+                "+9876543210"
+        );
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        // When
+        authService.register(request);
+
+        // Then
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User capturedUser = userCaptor.getValue();
+        assertEquals(Role.ADMIN, capturedUser.getRole());
+        assertEquals(request.firstName(), capturedUser.getFirstName());
+        assertEquals(request.lastName(), capturedUser.getLastName());
+    }
+
+    @Test
+    @DisplayName("Should use default role when invalid role is provided")
+    void testRegister_WithInvalidRole() {
+        // Given
+        RegisterRequest request = new RegisterRequest(
+                "user@example.com",
+                "password123",
+                "Test",
+                "User",
+                "INVALID_ROLE",
+                null,
+                null
+        );
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        // When
+        authService.register(request);
+
+        // Then
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User capturedUser = userCaptor.getValue();
+        // Should use default role (RECRUITER) when invalid role is provided
+        assertEquals(defaultRole, capturedUser.getRole());
+    }
+
+    @Test
+    @DisplayName("Should register user with optional fields as null")
+    void testRegister_WithOptionalFieldsNull() {
+        // Given
+        RegisterRequest request = new RegisterRequest(
+                "minimal@example.com",
+                "password123",
+                "Minimal",
+                "User",
+                "HIRING_MANAGER",
+                null,
+                null
+        );
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        // When
+        authService.register(request);
+
+        // Then
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User capturedUser = userCaptor.getValue();
+        assertNull(capturedUser.getCompanyName());
+        assertNull(capturedUser.getPhoneNumber());
+        assertEquals(Role.HIRING_MANAGER, capturedUser.getRole());
+    }
+
+    @Test
+    @DisplayName("Should set createdAt timestamp during registration")
+    void testRegister_SetsCreatedAtTimestamp() {
+        // Given
+        when(userRepository.existsByEmail(registerRequest.email())).thenReturn(false);
+        when(passwordEncoder.encode(registerRequest.password())).thenReturn(encodedPassword);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        LocalDateTime beforeRegistration = LocalDateTime.now();
+
+        // When
+        authService.register(registerRequest);
+
+        // Then
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User capturedUser = userCaptor.getValue();
+        
+        LocalDateTime afterRegistration = LocalDateTime.now();
+        assertNotNull(capturedUser.getCreatedAt());
+        assertTrue(capturedUser.getCreatedAt().isAfter(beforeRegistration.minusSeconds(1)));
+        assertTrue(capturedUser.getCreatedAt().isBefore(afterRegistration.plusSeconds(1)));
     }
 }
