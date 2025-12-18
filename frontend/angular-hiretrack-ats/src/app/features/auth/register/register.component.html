@@ -1,0 +1,252 @@
+<div class="register-container">
+  <div class="register-card">
+    <!-- Left: Form -->
+    <div>
+      <div class="brand-area">
+        <div class="brand-mark">HT</div>
+        <div class="brand-text">
+          <h1>HireTrack ATS</h1>
+          <p class="tagline">Create your hiring workspace in minutes.</p>
+        </div>
+      </div>
+
+      <div class="register-header">
+        <h2>Create your account</h2>
+        <p class="subtitle">
+          Join hiring teams using HireTrack to streamline sourcing, screening, and offers.
+        </p>
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Register Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- First Name -->
+        <div class="form-control">
+          <label for="firstName">First name</label>
+          <div class="input-wrapper">
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              [class.invalid]="hasError('firstName', 'required')"
+              placeholder="Alex"
+              autocomplete="given-name"
+            />
+          </div>
+          @if (hasError('firstName', 'required')) {
+            <small class="error"> First name is required. </small>
+          }
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-control">
+          <label for="lastName">Last name</label>
+          <div class="input-wrapper">
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              [class.invalid]="hasError('lastName', 'required')"
+              placeholder="Johnson"
+              autocomplete="family-name"
+            />
+          </div>
+          @if (hasError('lastName', 'required')) {
+            <small class="error"> Last name is required. </small>
+          }
+        </div>
+
+        <!-- Email -->
+        <div class="form-control register-form-full">
+          <label for="email">Work email</label>
+          <div class="input-wrapper">
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              [class.invalid]="hasError('email', 'required') || hasError('email', 'email')"
+              placeholder="you@company.com"
+              autocomplete="email"
+            />
+          </div>
+          @if (hasError('email', 'required')) {
+            <small class="error"> Email is required. </small>
+          }
+          @if (hasError('email', 'email')) {
+            <small class="error"> Please enter a valid email address. </small>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-control">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              [class.invalid]="hasError('password', 'required') || hasError('password', 'passwordWeak')"
+              placeholder="Create a strong password"
+              autocomplete="new-password"
+            />
+          </div>
+          @if (hasError('password', 'required')) {
+            <small class="error"> Password is required. </small>
+          }
+          @if (hasError('password', 'passwordWeak')) {
+            <small class="error">
+              Password must contain at least:
+              <ul>
+                <li>8 characters</li>
+                <li>1 uppercase letter</li>
+                <li>1 lowercase letter</li>
+                <li>1 number</li>
+                <li>1 special character</li>
+              </ul>
+            </small>
+          }
+          
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-control">
+          <label for="confirmPassword">Confirm password</label>
+          <div class="input-wrapper">
+            <input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              [class.invalid]="
+                hasError('confirmPassword', 'required') ||
+                hasError('confirmPassword', 'passwordMismatch')
+              "
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+            />
+          </div>
+          @if (hasError('confirmPassword', 'required')) {
+            <small class="error"> Please confirm your password. </small>
+          }
+          @if (hasError('confirmPassword', 'passwordMismatch')) {
+            <small class="error"> Passwords do not match. </small>
+          }
+        </div>
+
+        <!-- Role -->
+        <div class="form-control" >
+          <label for="role">Role</label>
+          <div class="input-wrapper">
+            <select
+              id="role"
+              formControlName="role"
+              [class.invalid]="hasError('role', 'required')"
+            >
+              <option value="" disabled>Select your role</option>
+
+              @for (role of roles; track role) {
+                <option [value]="role">{{ roleLabels[role] }}</option>
+              }
+
+            </select>
+          </div>
+          @if (hasError('role', 'required')) {
+            <small class="error"> Please select your role. </small>
+          }
+        </div>
+
+        <!-- Company Name -->
+        <div class="form-control">
+          <label for="companyName">Company name</label>
+          <div class="input-wrapper">
+            <input
+              id="companyName"
+              type="text"
+              formControlName="companyName"
+              [class.invalid]="hasError('companyName', 'required')"
+              placeholder="Acme Inc."
+              autocomplete="organization"
+            />
+          </div>
+          @if (hasError('companyName', 'required')) {
+            <small class="error"> Company name is required. </small>
+          }
+        </div>
+
+        <!-- Phone number -->
+        <div class="form-control register-form-full">
+          <label for="phoneNumber">Phone number</label>
+          <div class="input-wrapper">
+            <input
+              #phoneInput
+              id="phoneNumber"
+              type="tel"
+              formControlName="phoneNumber"
+              [class.invalid]="hasError('phoneNumber', 'required') || hasError('phoneNumber', 'pattern')"
+              placeholder=" 6 50 00 12 34"
+              autocomplete="tel"
+            />
+          </div>
+          @if (hasError('phoneNumber', 'required')) {
+            <small class="error"> Phone number is required. </small>
+          }
+          @if (hasError('phoneNumber', 'pattern')) {
+            <small class="error"> Please enter a valid phone number (with country code). </small>
+          }
+          <p class="helper-text">
+            We'll only use this for critical account and candidate updates.
+          </p>
+        </div>
+
+        <!-- Submit button -->
+        <div class="register-form-full">
+          <button
+            type="submit"
+            [disabled]="loading || registerForm.invalid"
+            class="btn-primary"
+          >
+            @if (!loading) {
+              <span>Create workspace</span>
+            } @else {
+              <span>Creating your account...</span>
+            }
+          </button>
+          <p class="login-link">
+            Already have an account?
+            <a [routerLink]="['/login']">Sign in</a>
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right: Marketing / Benefits -->
+    <aside class="side-panel">
+      <div>
+        <div class="side-pill">
+          <span>⚡</span>
+          <span>Built for hiring teams</span>
+        </div>
+        <h3>Hire faster, with more confidence.</h3>
+        <p>
+          Centralize candidates, collaborate with hiring managers, and keep every stakeholder
+          aligned in one streamlined ATS.
+        </p>
+
+        <ul class="side-list">
+          <li>Unified pipeline view across all open roles</li>
+          <li>Structured interview feedback and scorecards</li>
+          <li>Automated candidate communication and reminders</li>
+        </ul>
+      </div>
+      <p class="side-footnote">
+        No credit card required. You can adjust your plan or invite more teammates at any time
+        from your workspace settings.
+      </p>
+    </aside>
+  </div>
+</div>

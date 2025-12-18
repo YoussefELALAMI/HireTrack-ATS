@@ -2,3 +2,68 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* ngx-intl-tel-input dropdown fix */
+.ngx-intl-tel-input {
+    width: 100%;
+  }
+  
+  /* Input container */
+  .ngx-intl-tel-input .iti {
+    width: 100%;
+  }
+  
+  /* Phone input */
+  .ngx-intl-tel-input input {
+    background-color: #0f172a; /* dark background */
+    color: #e5e7eb;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    height: 44px;
+    padding-left: 60px;
+  }
+  
+  /* Country dropdown */
+  .iti__country-list {
+    background-color: #020617;
+    color: #e5e7eb;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    z-index: 9999;
+  }
+  
+  /* Country row */
+  .iti__country {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  /* Hover */
+  .iti__country:hover {
+    background-color: #1e293b;
+  }
+  
+  /* Selected country */
+  .iti__country.iti__highlight {
+    background-color: #334155;
+  }
+  
+  /* Search box */
+  .iti__search-input {
+    background-color: #020617;
+    color: #e5e7eb;
+    border: 1px solid #334155;
+    border-radius: 6px;
+  }
+  
+  /* Flag container */
+  .iti__flag-container {
+    background-color: transparent;
+  }
+  
+  /* Dial code */
+  .iti__dial-code {
+    color: #94a3b8;
+  }
+  
+  
